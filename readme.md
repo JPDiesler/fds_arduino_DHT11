@@ -114,6 +114,8 @@ void loop() {
 }
 ```
 
+> :bulb:**Hinweis:** Du findest des Code hier: `src/dht11.cpp`
+
 ## :interrobang: Erklärung der einzelnen Codeabschnitte:
 
 1. `#include "DHT.h"`

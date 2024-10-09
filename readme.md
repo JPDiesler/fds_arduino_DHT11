@@ -153,7 +153,7 @@ Nachdem du den Code auf den Arduino hochgeladen hast, kannst du die gemessenen T
 2. Ein neues Fenster öffnet sich – der Serial Monitor.
 3. Stelle sicher, dass die Baudrate im Serial Monitor auf 9600 eingestellt ist (das kannst du im Dropdown-Menü unten rechts im Serial Monitor ändern), da dies die gleiche Baudrate ist, die wir im Code mit Serial.begin(9600); definiert haben.
 4. Nun solltest du im Serial Monitor die Temperaturdaten sehen, die jede Sekunde aktualisiert werden. Die Ausgabe sieht ungefähr so aus:
-```json
+```txt
 Temperatur: 25.30 °C
 Temperatur: 25.40 °C
 Temperatur: 25.50 °C

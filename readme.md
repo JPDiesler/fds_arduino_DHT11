@@ -28,7 +28,7 @@ Für Anfänger ist die Arduino IDE die beste Wahl, da sie speziell für die Prog
 ### Alternative: Visual Studio Code für fortgeschrittene Nutzer :muscle::
 Wer bereits Erfahrung mit Programmierung hat oder eine leistungsfähigere Entwicklungsumgebung nutzen möchte, kann Visual Studio Code in Kombination mit der Arduino-Erweiterung verwenden.
 
-- Anleitung zur Verwendung von VSCode mit Arduino: [VSCode Arduino Tutorial](www.google.com)
+- Anleitung zur Verwendung von VSCode mit Arduino: [VSCode Arduino Tutorial]([www.google.com](https://www.circuitstate.com/tutorials/how-to-use-vs-code-for-creating-and-uploading-arduino-sketches/))
 
 > :bulb:**Hinweis:** Diese Anleitung bezieht sich auf die Arduino IDE. Falls du dir unsicher sein solltest welche Software du verwenden willst, wähle die Arduino IDE.
 

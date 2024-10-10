@@ -28,7 +28,7 @@ Für Anfänger ist die Arduino IDE die beste Wahl, da sie speziell für die Prog
 ### Alternative: Visual Studio Code für fortgeschrittene Nutzer :muscle::
 Wer bereits Erfahrung mit Programmierung hat oder eine leistungsfähigere Entwicklungsumgebung nutzen möchte, kann Visual Studio Code in Kombination mit der Arduino-Erweiterung verwenden.
 
-- Anleitung zur Verwendung von VSCode mit Arduino: [VSCode Arduino Tutorial]([www.google.com](https://www.circuitstate.com/tutorials/how-to-use-vs-code-for-creating-and-uploading-arduino-sketches/))
+- Anleitung zur Verwendung von VSCode mit Arduino: [VSCode Arduino Tutorial](www.google.com)
 
 > :bulb:**Hinweis:** Diese Anleitung bezieht sich auf die Arduino IDE. Falls du dir unsicher sein solltest welche Software du verwenden willst, wähle die Arduino IDE.
 
@@ -82,35 +82,42 @@ Um mit dem DHT11 zu arbeiten, benötigst du die Adafruit DHT-Sensorbibliothek.
 > :bulb:**Hinweis:** Der folgende Code liest die Temperaturdaten vom DHT11-Sensor aus und zeigt diese jede Sekunde im seriellen Monitor an. Hier findest du den vollständigen Code mit einer detaillierten Erklärung:
 
 ```cpp
-#include "DHT.h"  // Importiere die DHT Bibliothek, die uns den Zugriff auf den DHT11 Sensor ermöglicht.
+#include "DHT11.h"
 
-#define DHTPIN 2     // Definiert den digitalen Pin, an den der DHT11-Sensor angeschlossen ist (in diesem Fall Pin 2).
-#define DHTTYPE DHT11   // Definiert den Sensortyp (DHT11). Falls du einen DHT22 verwenden würdest, müsstest du hier DHT22 angeben.
+#define DHTPIN 2
 
-DHT dht(DHTPIN, DHTTYPE);  // Erstellt ein Objekt der DHT Klasse, das den Pin und den Sensortyp verwendet.
+DHT11 dht(DHTPIN);
 
 void setup() {
-  Serial.begin(9600);  // Initialisiert die serielle Kommunikation mit 9600 Baud (Geschwindigkeit der Datenübertragung).
-  dht.begin();  // Initialisiert den DHT-Sensor. Ohne diesen Befehl funktioniert der Sensor nicht.
+  Serial.begin(9600);
 }
 
 void loop() {
-  delay(1000);  // Verzögert die Ausführung des Codes um 1 Sekunde (1000 Millisekunden), sodass der Sensor nur einmal pro Sekunde abfragt.
+  delay(1000);
 
-  float temperature = dht.readTemperature();  // Liest die Temperatur in Celsius vom Sensor und speichert sie als Gleitkommazahl (float) in der Variable "temperature".
+  int temperature, humidity;
+  int chk = dht.readTemperatureHumidity(temperature, humidity);
 
-  // Überprüft, ob die Messung erfolgreich war:
-  if (isnan(temperature)) {  
-    // Wenn der Sensor keine gültigen Daten liefert (z.B. wenn der Sensor falsch verdrahtet ist oder nicht antwortet),
-    // gibt der Code eine Fehlermeldung aus.
-    Serial.println("Fehler beim Auslesen des DHT-Sensors!");
-    return;  // Stoppt die Ausführung der Funktion, wenn keine Daten gelesen werden konnten.
+  if (chk == DHT11::ERROR_TIMEOUT || chk == DHT11::ERROR_CHECKSUM) {  
+
+    Serial.print("Fehler beim Auslesen des DHT-Sensors: ");
+    Serial.println(dht.getErrorString(chk));
+    return;
   }
 
-  // Wenn die Daten erfolgreich ausgelesen wurden, gibt der Arduino die Temperatur auf dem seriellen Monitor aus:
   Serial.print("Temperatur: ");
-  Serial.print(temperature);  // Gibt die gemessene Temperatur ohne Zeilenumbruch aus.
-  Serial.println(" °C");  // Gibt das Grad Celsius-Symbol aus und bricht die Zeile um.
+  Serial.print(temperature);
+  Serial.print(" °C");
+
+  if (temperature > 25) {
+    Serial.println("Warnung: Hohe Temperatur!");
+  } else {
+    Serial.println();
+  }
+
+  Serial.print("Luftfeuchtigkeit: ");
+  Serial.print(humidity);
+  Serial.println(" %");
 }
 ```
 
@@ -118,28 +125,31 @@ void loop() {
 
 ## :interrobang: Erklärung der einzelnen Codeabschnitte:
 
-1. `#include "DHT.h"`
-   - Dieser Befehl importiert die DHT-Bibliothek, die alle Funktionen bereitstellt, um Daten vom DHT11-Sensor auszulesen.
+1. `#include "DHT11.h"`
+   - Dieser Befehl importiert die DHT11-Bibliothek, die alle Funktionen bereitstellt, um Daten vom DHT11-Sensor auszulesen.
 2. `#define DHTPIN 2`
    - Hier definierst du den digitalen Pin, an dem der DATA-Pin des DHT11-Sensors angeschlossen ist. In diesem Fall verwenden wir Digital Pin 2.
-3. `#define DHTTYPE DHT11`
-   - Da wir einen DHT11-Sensor verwenden, wird der Sensortyp auf DHT11 gesetzt. Die DHT-Bibliothek unterstützt auch den DHT22, aber den würden wir hier nicht verwenden.
-
-4. `DHT dht(DHTPIN, DHTTYPE);`
-   - Dies erstellt ein DHT-Objekt mit dem Namen dht. Dieses Objekt ermöglicht uns den Zugriff auf alle Funktionen des DHT-Sensors, wie das Lesen der Temperatur und Feuchtigkeit.
-5. `void setup()`
-   - Die `setup()`-Funktion wird einmalig beim Start des Arduino-Boards ausgeführt. Hier initialisieren wir die serielle Kommunikation mit dem Befehl Serial.begin(9600);, damit wir die Sensordaten später auf dem PC über den seriellen Monitor anzeigen können.
-   - `dht.begin();` initialisiert den DHT-Sensor und bereitet ihn auf das Auslesen von Daten vor.
-6. `void loop()`
-    - Die `loop()`-Funktion wird kontinuierlich wiederholt. Hier läuft unser Programm zur Messung und Ausgabe der Temperaturdaten.
-    - `delay(1000);` pausiert die Ausführung für 1 Sekunde, sodass die Temperatur einmal pro Sekunde abgerufen wird.
-    - `float temperature = dht.readTemperature();` liest die aktuelle Temperatur in Grad Celsius vom DHT11-Sensor und speichert sie in der Variable temperature.
-7. Fehlerbehandlung:
-    - `if (isnan(temperature)) { ... }` prüft, ob der Sensor eine gültige Temperatur gemeldet hat. `isnan()` bedeutet "is not a number". Sollte ein Fehler auftreten, wird eine Fehlermeldung ausgegeben.
-8. Ausgabe der Temperatur:
-    - `Serial.print("Temperatur: ");` gibt den Text "Temperatur: " auf dem seriellen Monitor aus.
-    - `Serial.print(temperature);` gibt die gemessene Temperatur aus.
-    - `Serial.println(" °C");` gibt das Grad-Symbol aus und startet eine neue Zeile.
+   - Die Baudrate von `9600` gibt die Geschwindigkeit der Datenübertragung an, gemessen in Bits pro Sekunde (bps). Eine Baudrate von `9600` bedeutet, dass `9600` Bits pro Sekunde übertragen werden. Diese Geschwindigkeit ist eine gängige Einstellung für serielle Kommunikation und stellt sicher, dass die Daten zuverlässig zwischen dem Arduino und dem Computer übertragen werden.
+3. `DHT11 dht(DHTPIN);`
+   - Dies erstellt ein DHT11-Objekt mit dem Namen dht. Dieses Objekt ermöglicht uns den Zugriff auf alle Funktionen des DHT11-Sensors, wie das Lesen der Temperatur und Feuchtigkeit.
+4. `void setup()`
+   - Die `setup()`-Funktion wird einmalig beim Start des Arduino-Boards ausgeführt. Hier initialisieren wir die serielle Kommunikation mit dem Befehl `Serial.begin(9600);`, damit wir die Sensordaten später auf dem PC über den seriellen Monitor anzeigen können.
+5. `void loop()`
+   - Die `loop()`-Funktion wird kontinuierlich wiederholt. Hier läuft unser Programm zur Messung und Ausgabe der Temperatur- und Feuchtigkeitsdaten.
+   - `delay(1000);` pausiert die Ausführung für 1 Sekunde, sodass die Temperatur und Feuchtigkeit einmal pro Sekunde abgerufen werden.
+   - `int chk = dht.readTemperatureHumidity(temperature, humidity);` liest die aktuelle Temperatur und Feuchtigkeit vom DHT11-Sensor und speichert sie in den Variablen temperature und humidity.
+6. Fehlerbehandlung:
+   - `if (chk == DHT11::ERROR_TIMEOUT || chk == DHT11::ERROR_CHECKSUM) { ... }` prüft, ob der Sensor eine gültige Temperatur und Feuchtigkeit gemeldet hat. Sollte ein Fehler auftreten, wird eine Fehlermeldung ausgegeben.
+   - `Serial.print("Fehler beim Auslesen des DHT-Sensors: ");` gibt den Text "Fehler beim Auslesen des DHT-Sensors: " auf dem seriellen Monitor aus.
+   - `Serial.println(dht.getErrorString(chk));` gibt die spezifische Fehlermeldung aus.
+7. Ausgabe der Temperatur und Feuchtigkeit:
+   - `Serial.print("Temperatur: ");` gibt den Text "Temperatur: " auf dem seriellen Monitor aus.
+   - `Serial.print(temperature);` gibt die gemessene Temperatur aus.
+   - `Serial.print(" °C");` gibt das Grad-Symbol aus.
+   - `if (temperature > 25) { Serial.println("Warnung: Hohe Temperatur!"); }` überprüft, ob die Temperatur 25°C überschreitet und gibt eine Warnung aus.
+   - `Serial.print("Luftfeuchtigkeit: ");` gibt den Text "Luftfeuchtigkeit: " auf dem seriellen Monitor aus.
+   - `Serial.print(humidity);` gibt die gemessene Luftfeuchtigkeit aus.
+   - `Serial.println(" %");` gibt das Prozent-Symbol aus und startet eine neue Zeile.
 
 ## 5. :rocket: Hochladen des Sketches auf den Arduino
 1. Verbinde den Arduino Uno mit deinem Computer über ein **USB-Kabel**.
